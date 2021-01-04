@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 
@@ -20,7 +21,7 @@ def lambda_handler(event, context):
 class PreProcessPPIAnnotation:
 
     def process(self, json_input):
-        source_input_dict = json_input["source"]
+        source_input_dict = json.loads(json_input["source"])
 
         norm_abstract = source_input_dict["normalised_abstract"]
         particpant_uniprots = [source_input_dict["participant1Id"], source_input_dict["participant2Id"]]

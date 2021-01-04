@@ -1,13 +1,14 @@
+import json
 from unittest import TestCase
 
-from lambda_preprocess import PreProcessPPIAnnotation
+from preprocess import PreProcessPPIAnnotation
 
 
 class TestPreProcessPPIAnnotation(TestCase):
 
     def test_process_all_fields(self):
         # Arrange
-        sample_json = {"source": {
+        sample_json = {
             "abstract": "The proto-oncogene BCL6 encodes a BTB/POZ-zinc finger transcriptional repressor that is necessary for germinal-center formation and has been implicated in the pathogenesis of B-cell lymphomas. Here we show that the co-activator p300 binds and acetylates BCL6 in vivo and inhibits its function. Acetylation disrupts the ability of BCL6 to recruit histone deacetylases (HDACs), thereby hindering its capacity to repress transcription and to induce cell transformation. BCL6 is acetylated under physiologic conditions in normal germinal-center B cells and in germinal center-derived B-cell tumors. Treatment with specific inhibitors shows that levels of acetylation of BCL6 are controlled by both HDAC-dependent and SIR2-dependent pathways. Pharmacological inhibition of these pathways leads to the accumulation of the inactive acetylated BCL6 and to cell-cycle arrest and apoptosis in B-cell lymphoma cells. These results identify a new mechanism of regulation of the proto-oncogene BCL6 with potential for therapeutic exploitation. Furthermore, these findings provide a new mechanism by which acetylation can promote transcription not only by modifying histones and activating transcriptional activators, but also by inhibiting transcriptional repressors.",
             "annotations": [{"normalised_id": "604", "end": "23", "start": "19", "name": "BCL6", "type": "Gene"},
                             {"normalised_id": "2033", "end": "232", "start": "228", "name": "p300", "type": "Gene"},
@@ -28,13 +29,14 @@ class TestPreProcessPPIAnnotation(TestCase):
             "acetylation": 0.9025735795000001, "demethylation": 0.0129228815, "dephosphorylation": 0.007053328100000001,
             "deubiquitination": 0.020006244000000003, "methylation": 0.014541742600000001,
             "other": 0.018704607300000002, "phosphorylation": 0.0038712035000000003, "ubiquitination": 0.0203264001,
-            "predicted_confidence": 0.9025735795000001, "PubmedInTrainingData": False}}
-        expected = sample_json["source"]
+            "predicted_confidence": 0.9025735795000001, "PubmedInTrainingData": False}
+        expected = sample_json
+        input_data = {"source": json.dumps(sample_json)}
 
         sut = PreProcessPPIAnnotation()
 
         # Act
-        actual = sut.process(sample_json)
+        actual = sut.process(input_data)
 
         # Assert
         for k, v in expected.items():
@@ -42,7 +44,7 @@ class TestPreProcessPPIAnnotation(TestCase):
 
     def test_process_display(self):
         # Arrange
-        sample_json = {"source": {
+        sample_json = {
             "annotations": [{"normalised_id": "2033", "end": "232", "start": "228", "name": "p300", "type": "Gene"},
                             {"normalised_id": "604", "end": "258", "start": "254", "name": "BCL6", "type": "Gene"},
                             ],
@@ -50,20 +52,21 @@ class TestPreProcessPPIAnnotation(TestCase):
             "normalised_abstract": "co-activator Q09472 binds and acetylates P41182",
             "participant1Id": "P41182",
             "participant2Id": "Q09472"
-        }}
+        }
         expected_display_abstract = "co-activator <mark>p300 (Q09472)</mark> binds and acetylates <mark>BCL6 (P41182)</mark>"
+        input_data = {"source": json.dumps(sample_json)}
 
         sut = PreProcessPPIAnnotation()
 
         # Act
-        actual = sut.process(sample_json)
+        actual = sut.process(input_data)
 
         # Assert
         self.assertEqual(expected_display_abstract, actual["display_abstract"])
 
     def test_process_display_particpants(self):
         # Arrange
-        sample_json = {"source": {
+        sample_json = {
             "annotations": [{"normalised_id": "2033", "end": "232", "start": "228", "name": "p300", "type": "Gene"},
                             {"normalised_id": "604", "end": "258", "start": "254", "name": "BCL6", "type": "Gene"},
                             {"normalised_id": "22933", "end": "717", "start": "713", "name": "SIR2", "type": "Gene"}
@@ -73,20 +76,21 @@ class TestPreProcessPPIAnnotation(TestCase):
             "normalised_abstract": "Q09472 binds and acetylates P41182 Q8IXJ6-dependent pathways",
             "participant1Id": "P41182",
             "participant2Id": "Q09472"
-        }}
+        }
         expected_display_participants = sorted(["p300 (Q09472)", "BCL6 (P41182)"])
+        input_data = {"source": json.dumps(sample_json)}
 
         sut = PreProcessPPIAnnotation()
 
         # Act
-        actual = sut.process(sample_json)
+        actual = sut.process(input_data)
 
         # Assert
         self.assertEqual(expected_display_participants, sorted(actual["display_participants"]))
 
     def test_process_display_segments(self):
         # Arrange
-        sample_json = {"source": {
+        sample_json = {
             "annotations": [{"normalised_id": "2033", "end": "232", "start": "228", "name": "p300", "type": "Gene"},
                             {"normalised_id": "604", "end": "258", "start": "254", "name": "BCL6", "type": "Gene"},
                             ],
@@ -94,7 +98,7 @@ class TestPreProcessPPIAnnotation(TestCase):
             "normalised_abstract": "Q09472 binds and acetylates P41182",
             "participant1Id": "P41182",
             "participant2Id": "Q09472"
-        }}
+        }
         expected_display_segments = [{"text": "", "highlight": False},
                                      {"text": "p300 (Q09472)", "highlight": True},
                                      {"text": " binds and acetylates ", "highlight": False},
@@ -103,16 +107,17 @@ class TestPreProcessPPIAnnotation(TestCase):
                                      ]
 
         sut = PreProcessPPIAnnotation()
+        input_data = {"source": json.dumps(sample_json)}
 
         # Act
-        actual = sut.process(sample_json)
+        actual = sut.process(input_data)
 
         # Assert
         self.assertEqual(expected_display_segments, actual["display_segments"])
 
     def test_process_display_segments_non_participant(self):
         # Arrange
-        sample_json = {"source": {
+        sample_json = {
             "annotations": [{"normalised_id": "2033", "end": "232", "start": "228", "name": "p300", "type": "Gene"},
                             {"normalised_id": "604", "end": "258", "start": "254", "name": "BCL6", "type": "Gene"},
                             {"normalised_id": "22933", "end": "717", "start": "713", "name": "SIR2", "type": "Gene"}
@@ -122,18 +127,19 @@ class TestPreProcessPPIAnnotation(TestCase):
             "normalised_abstract": "Q09472 binds and acetylates P41182 Q8IXJ6-dependent pathways",
             "participant1Id": "P41182",
             "participant2Id": "Q09472"
-        }}
+        }
         expected_display_segments = [{"text": "", "highlight": False},
                                      {"text": "p300 (Q09472)", "highlight": True},
                                      {"text": " binds and acetylates ", "highlight": False},
                                      {"text": "BCL6 (P41182)", "highlight": True},
                                      {"text": " SIR2 (Q8IXJ6)-dependent pathways", "highlight": False}
                                      ]
+        input_data = {"source": json.dumps(sample_json)}
 
         sut = PreProcessPPIAnnotation()
 
         # Act
-        actual = sut.process(sample_json)
+        actual = sut.process(input_data)
 
         # Assert
         self.assertEqual(expected_display_segments, actual["display_segments"])
