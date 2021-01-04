@@ -1,0 +1,9 @@
+language: python
+python:
+  - "3.7.8"
+install:
+  - pip install pip==10.0.1
+  - pip -V
+script:
+  - export PYTHONPATH=./src/lambda_preprocess:./src/lambda_postprocess
+  - pytest --tb=short
