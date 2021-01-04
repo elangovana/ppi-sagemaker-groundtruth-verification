@@ -43,9 +43,10 @@ class PreProcessPPIAnnotation:
         return source_input_dict
 
     def get_display_friendly_gene_name(self, uniprot_id, source_input_dict, particpant_uniprots):
-        ncbi, _ = list(filter(lambda kv: kv[1] == uniprot_id, source_input_dict["gene_id_map"].items()))[0]
-        gene_name = list(filter(lambda a: a["type"] == 'Gene' and a["normalised_id"] == ncbi,
-                                source_input_dict["annotations"]))[0]["name"]
+        ncbi, _ = list(filter(lambda kv: kv[1] == uniprot_id, source_input_dict["gene_id_map"].items()), )[0]
+        # Make sure we select the shortest name.
+        gene_name = list(sorted(filter(lambda a: a["type"] == 'Gene' and a["normalised_id"] == ncbi,
+                                       source_input_dict["annotations"]), key=lambda a: len(a["name"])))[0]["name"]
 
         if uniprot_id in particpant_uniprots:
             display_friendly_nomalised_name = "<mark>{} ({})</mark>".format(gene_name,
