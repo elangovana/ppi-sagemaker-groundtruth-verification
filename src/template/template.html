@@ -1,0 +1,38 @@
+<script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+<crowd-form>
+
+
+    <crowd-classifier
+            name="category"
+            categories="['Correct', 'Incorrect - Invalid Relation', 'Incorrect - NER issues ']"
+            header="Select the most relevant answer"
+    >
+        <classification-target style="white-space: pre-wrap">
+
+            <div>
+                Is this relationship described?
+                {% for p in task.input.display_participants %}
+                <b>{{p}}</b>
+                {% endfor%}
+            </div>
+            <span id="ppitext">
+            {% for seg in task.input.display_segments %}{% if seg.highlight %}<b>{{seg.text}}</b>{% else %}{{seg.text}}{% endif %}{% endfor %}
+            </span>
+        </classification-target>
+
+
+        <full-instructions header="Text Categorization Instructions">
+            <p><strong>Correct</strong> sentiment include: joy, excitement, delight</p>
+            <p><strong>Incorrect - Invalid Relation</strong> sentiment include: anger, sarcasm, anxiety</p>
+            <p><strong>Incorrect - NER issues</strong>: neither positive or negative, such as stating a fact</p>
+
+        </full-instructions>
+
+        <short-instructions>
+            Recognise the entities in this task: EntityType - Protein Name. Select the entity by clicking
+            on the text
+        </short-instructions>
+    </crowd-classifier>
+
+
+</crowd-form>
