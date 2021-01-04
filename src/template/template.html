@@ -1,36 +1,99 @@
 <script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
 <crowd-form>
+    <style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
 
+
+
+
+    </style>
 
     <crowd-classifier
             name="category"
-            categories="['Correct', 'Incorrect - Invalid Relation', 'Incorrect - NER issues ']"
+            categories="['Correct', 'Incorrect - Invalid Relation', 'Incorrect - NER issues ', 'Incorrect - DNA Methylation', 'Not - sure']"
             header="Select the most relevant answer"
     >
-        <classification-target style="white-space: pre-wrap">
-
+        <classification-target>
+            <h2><a href="https://pubmed.ncbi.nlm.nih.gov/{{task.input.pubmedId}}" target="_blank"> Abstract - Pubmed
+                {{task.input.pubmedId}}</a></h2>
             <div>
                 Is this PPI relationship <b>{{task.input.predicted}}</b> described?
-                {% for p in task.input.display_participants %}
-                <b>{{p}}</b>
-                {% endfor%}
+                <ul>
+                    {% for p in task.input.display_participants %}
+                    <li>{{p}}</li>
+                    {% endfor%}
+                </ul>
+
             </div>
-            <span id="ppitext">
-            {% for seg in task.input.display_segments %}{% if seg.highlight %}<b>{{seg.text}}</b>{% else %}{{seg.text}}{% endif %}{% endfor %}
-            </span>
+            <div id="ppitext">
+                {% for seg in task.input.display_segments %}{% if seg.highlight %}<b>{{seg.text}}</b>{% else
+                %}{{seg.text}}{% endif %}{% endfor %}
+            </div>
+
+
+            <h2>Additional info</h2>
+
+            <h3>Raw abstract</h3>
+            <div>
+                {{task.input.abstract}}
+            </div>
+
+            <h3>Annotations</h3>
+            <table>
+                <tr>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Name</th>
+                    <th>NCBI</th>
+                </tr>
+
+
+                {% for a in task.input.annotations %}
+                {% if a.type == 'Gene' %}
+                <tr>
+                    <td>{{a.start}}</td>
+                    <td>{{a.end}}</td>
+                    <td>{{a.name}}</td>
+                    <td>{{a.normalised_id}}</td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+
+            <h3>Gene to uniprot map</h3>
+            <table>
+                {% for a in task.input.gene_id_map %}
+
+                <tr>
+                    <td>{{a}}</td>
+                </tr>
+
+                {% endfor %}
+            </table>
+
+            <div>
+                <br/>
+            </div>
+
+
         </classification-target>
 
 
         <full-instructions header="Text Categorization Instructions">
-            <p><strong>Correct</strong> sentiment include: joy, excitement, delight</p>
-            <p><strong>Incorrect - Invalid Relation</strong> sentiment include: anger, sarcasm, anxiety</p>
-            <p><strong>Incorrect - NER issues</strong>: neither positive or negative, such as stating a fact</p>
+            <p><strong>Correct</strong> The abstract describes the typed PPI relation des</p>
+            <p><strong>Incorrect - Invalid Relation</strong> The abstract does not describe the relationship between the
+                2 proteins</p>
+            <p><strong>Incorrect - NER issues</strong>The abstract does not describe the relationship between the 2
+                proteins due to invalid protein name recognition</p>
+            <p><strong>Not - sure</strong> Unable to clearly tell if the abstract describes the relation</p>
 
         </full-instructions>
 
         <short-instructions>
-            Recognise the entities in this task: EntityType - Protein Name. Select the entity by clicking
-            on the text
+            Recognise typed PPI relationship extracted.
         </short-instructions>
     </crowd-classifier>
 
