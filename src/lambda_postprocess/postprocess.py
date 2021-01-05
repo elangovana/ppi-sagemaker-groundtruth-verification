@@ -49,7 +49,7 @@ class PostProcessPPIAnnotation:
         result = []
         for r in json.loads(payload):
             annotations_hit = {}
-            valid_annotations = []
+            valid_annotation = None
 
             # Consolidate annotaions for the same record from various workers..
             # Annotations for various workers for the same record.. Pick the majority ones
@@ -66,13 +66,13 @@ class PostProcessPPIAnnotation:
 
                 annotations_hit[label] += 1
                 if annotations_hit[label] == threshold:
-                    valid_annotations.append({"label": label})
+                    valid_annotation = label
 
             result.append({
                 "datasetObjectId": r["datasetObjectId"],
                 "consolidatedAnnotation": {
                     "content": {
-                        labelAttributeName: valid_annotations
+                        labelAttributeName: {"label": valid_annotation}
                     }
                 }
             })
