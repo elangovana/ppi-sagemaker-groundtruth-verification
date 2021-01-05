@@ -10,11 +10,12 @@ table, th, td {
 
 
 
+
     </style>
 
     <crowd-classifier
             name="category"
-            categories="['Correct',  'Incorrect - NER issues ', 'Incorrect - DNA Methylation', 'Incorrect - No trigger word', 'Incorrect - Other', 'Not - sure']"
+            categories="['Correct',  'Incorrect - NER', 'Incorrect - DNA Methylation', 'Incorrect - No trigger word', 'Incorrect - Other', 'Not - sure']"
             header="Select the most relevant answer"
     >
         <classification-target>
@@ -91,9 +92,9 @@ table, th, td {
 
         <full-instructions header="Text Categorization Instructions">
             <p><strong>Correct</strong> The abstract describes the typed PPI relation des</p>
-            <p><strong>Incorrect - Invalid Relation</strong> The abstract does not describe the relationship between the
+            <p><strong>Incorrect - Other</strong> The abstract does not describe the relationship between the
                 2 proteins</p>
-            <p><strong>Incorrect - NER issues</strong>The abstract does not describe the relationship between the 2
+            <p><strong>Incorrect - NER</strong>The abstract does not describe the relationship between the 2
                 proteins due to invalid protein name recognition</p>
             <p><strong>Not - sure</strong> Unable to clearly tell if the abstract describes the relation</p>
 
