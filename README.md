@@ -17,7 +17,21 @@ This has 3 components
    
     - Create a lambda function `SageMaker-PPIPreProcessing` with runtime python 3.7 using the code [source/lambda_preprocess/preprocess_handler.py](source/lambda_preprocess/preprocess_handler.py). 
    
-    - Create a lambda function `SageMaker-PPIPostProcessing` with runtime python 3.7 using the code [source/lambda_postprocess/postprocess_handler.py](source/lambda_postprocess/postprocess_handler.py). Make sure this has access to read the s3 bucket containing the results from Sagemaker groundtruth job you are about to create
+    - Create a lambda function `SageMaker-PPIPostProcessing` with runtime python 3.7 using the code [source/lambda_postprocess/postprocess_handler.py](source/lambda_postprocess/postprocess_handler.py). **Make sure this has access to read the s3 bucket** containing the results from Sagemaker groundtruth job you are about to create. See example policy below
+    
+       ```json
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "VisualEditor0",
+                    "Effect": "Allow",
+                    "Action": "s3:GetObject",
+                    "Resource": "arn:aws:s3:::mybucket/*"
+                }
+            ]
+        }
+       ```
 
 1. Configure SageMaker Ground Truth as follows:
   
