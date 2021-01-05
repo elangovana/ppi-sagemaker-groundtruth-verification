@@ -61,7 +61,7 @@ class TestPostProcessNERAnnotation(TestCase):
                 'consolidatedAnnotation':
                     {
                         'content': {
-                            'ppi-clone-2-phosphorylation-clone': "0"
+                            'ppi-clone-2-phosphorylation-clone': {"result": 0}
 
                         }
                     },
@@ -72,7 +72,7 @@ class TestPostProcessNERAnnotation(TestCase):
                     {
                         'content':
                             {
-                                'ppi-clone-2-phosphorylation-clone': "1"
+                                'ppi-clone-2-phosphorylation-clone': {"result": 1}
 
                             }
                     },

@@ -1,4 +1,3 @@
-import datetime
 import json
 import logging
 import math
@@ -55,7 +54,6 @@ class PostProcessPPIAnnotation:
 
             annotations_hit = {}
             valid_annotation = None
-            confidence_score = 0
 
             # Consolidate annotaions for the same record from various workers..
             # Annotations for various workers for the same record.. Pick the majority ones
@@ -71,22 +69,14 @@ class PostProcessPPIAnnotation:
                 if label not in annotations_hit: annotations_hit[label] = 0
 
                 annotations_hit[label] += 1
-                # TODO Fix confidence score..
                 if annotations_hit[label] == threshold:
                     valid_annotation = label
-                    confidence_score = 0.0
 
             result.append({
                 "datasetObjectId": r["datasetObjectId"],
                 "consolidatedAnnotation": {
                     "content": {
-                        label_attribute_name: {"label": labels_dict[valid_annotation]},
-                        label_attribute_name + "-metadata": {"class-name": valid_annotation,
-                                                             "job-name": labeling_job_arn,
-                                                             "confidence": confidence_score,
-                                                             "type": "groundtruth/text-classification",
-                                                             "human-annotated": "yes",
-                                                             "creation-date": datetime.datetime.today().isoformat()},
+                        label_attribute_name: {"result": labels_dict[valid_annotation]}
                     }
                 }
             })
