@@ -15,7 +15,7 @@ table, th, td {
 
     <crowd-classifier
             name="category"
-            categories="['Correct',  'Incorrect - NER', 'Incorrect - DNA Methylation', 'Incorrect - No trigger word', 'Incorrect - Opposite type', 'Incorrect - Other', 'Not - sure']"
+            categories="{{task.input.display_labels}}"
             header="Select the most relevant answer"
     >
         <classification-target>

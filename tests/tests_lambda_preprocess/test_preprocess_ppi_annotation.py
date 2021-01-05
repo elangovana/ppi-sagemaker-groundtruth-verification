@@ -114,6 +114,32 @@ class TestPreProcessPPIAnnotation(TestCase):
         # Assert
         self.assertEqual(expected_display_participants, sorted(actual["display_participants"]))
 
+    def test_process_display_labels(self):
+        # Arrange
+        sample_json = {
+            "annotations": [
+                {'start': '0', 'end': '59', 'name': 'Mitogen-activated protein kinase-activated protein kinase 2',
+                 'normalised_id': '9261', 'type': 'Gene'},
+                {'start': '61', 'end': '64', 'name': 'MK2', 'normalised_id': '9261', 'type': 'Gene'},
+                {'start': '158', 'end': '161', 'name': 'MK2', 'normalised_id': '9261', 'type': 'Gene'},
+                {'start': '226', 'end': '230', 'name': 'ER81', 'normalised_id': '2115', 'type': 'Gene'}
+            ],
+            "gene_id_map": {'2115': 'P50549', '9261': 'P49137'},
+            "normalised_abstract": "P49137 (P49137) is an important intracellular mediator of stress signals",
+            "participant1Id": "P50549",
+            "participant2Id": "P49137"
+        }
+        expected_display_labels = "['Correct', 'Incorrect - NER', 'Incorrect - DNA Methylation', 'Incorrect - No trigger word', 'Incorrect - Opposite type', 'Incorrect - Other', 'Not - sure']"
+        input_data = {"source": json.dumps(sample_json)}
+
+        sut = PreProcessPPIAnnotation()
+
+        # Act
+        actual = sut.process(input_data)
+
+        # Assert
+        self.assertEqual(expected_display_labels, actual["display_labels"])
+
     def test_process_display_segments(self):
         # Arrange
         sample_json = {

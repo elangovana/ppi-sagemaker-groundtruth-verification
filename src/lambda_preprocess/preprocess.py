@@ -40,6 +40,13 @@ class PreProcessPPIAnnotation:
         source_input_dict["display_segments"] = [{"text": i, "highlight": any(map(i.__contains__, particpant_uniprots))}
                                                  for i in re.split("<mark>|</mark>", display_abstract)]
 
+        source_input_dict["labels"] = ['Correct', 'Incorrect - NER', 'Incorrect - DNA Methylation',
+                                       'Incorrect - No trigger word', 'Incorrect - Opposite type',
+                                       'Incorrect - Other', 'Not - sure']
+
+        comma_sep_labels_str = ", ".join(["'{}'".format(l) for l in source_input_dict["labels"]])
+        source_input_dict["display_labels"] = "[{}]".format(comma_sep_labels_str)
+
         return source_input_dict
 
     def get_display_friendly_gene_name(self, uniprot_id, source_input_dict, particpant_uniprots):
