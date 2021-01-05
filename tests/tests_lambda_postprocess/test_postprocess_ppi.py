@@ -48,7 +48,7 @@ class TestPostProcessNERAnnotation(TestCase):
                     {
                         "workerId": "private.us-east-2.1b499e35c94f835e",
                         "annotationData": {
-                            "content": "{\"category\":{\"label\":\"Incorrect - NER issues\"}}"
+                            "content": "{\"category\":{\"label\":\"Incorrect - NER\"}}"
                         }
                     }
                 ]
@@ -61,8 +61,7 @@ class TestPostProcessNERAnnotation(TestCase):
                 'consolidatedAnnotation':
                     {
                         'content': {
-                            'ppi-clone-2-phosphorylation-clone':
-                                {'label': 'Correct'}
+                            'ppi-clone-2-phosphorylation-clone': "0"
 
                         }
                     },
@@ -73,8 +72,7 @@ class TestPostProcessNERAnnotation(TestCase):
                     {
                         'content':
                             {
-                                'ppi-clone-2-phosphorylation-clone':
-                                    {'label': 'Incorrect - NER issues'}
+                                'ppi-clone-2-phosphorylation-clone': "1"
 
                             }
                     },

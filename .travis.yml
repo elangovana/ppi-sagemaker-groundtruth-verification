@@ -4,7 +4,7 @@ python:
 install:
   - pip install pip==10.0.1
   - pip -V
-  - pip install -r src/lambda_postprocess/requirements.txt
+  - pip install -r src/lambda_handler/requirements.txt
 script:
-  - export PYTHONPATH=./src/lambda_preprocess:./src/lambda_postprocess
+  - export PYTHONPATH=./src/lambda_handler
   - pytest --tb=short

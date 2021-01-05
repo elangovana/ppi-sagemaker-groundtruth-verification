@@ -1,9 +1,12 @@
+import datetime
 import json
 import logging
 import math
 from urllib.parse import urlparse
 
 import boto3
+
+import common
 
 
 def lambda_handler(event, context):
@@ -37,8 +40,8 @@ class PostProcessPPIAnnotation:
     def process(self, event):
 
         payload_uri = event["payload"]["s3Uri"]
-        labelAttributeName = event["labelAttributeName"]
-
+        label_attribute_name = event["labelAttributeName"]
+        labeling_job_arn = event["labelingJobArn"]
         bucket_name = urlparse(payload_uri).netloc
         key = urlparse(payload_uri).path.strip("/")
 
@@ -48,8 +51,11 @@ class PostProcessPPIAnnotation:
 
         result = []
         for r in json.loads(payload):
+            labels_dict = self._create_label_lookup(common.labels)
+
             annotations_hit = {}
             valid_annotation = None
+            confidence_score = 0
 
             # Consolidate annotaions for the same record from various workers..
             # Annotations for various workers for the same record.. Pick the majority ones
@@ -65,15 +71,29 @@ class PostProcessPPIAnnotation:
                 if label not in annotations_hit: annotations_hit[label] = 0
 
                 annotations_hit[label] += 1
+                # TODO Fix confidence score..
                 if annotations_hit[label] == threshold:
                     valid_annotation = label
+                    confidence_score = 0.0
 
             result.append({
                 "datasetObjectId": r["datasetObjectId"],
                 "consolidatedAnnotation": {
                     "content": {
-                        labelAttributeName: {"label": valid_annotation}
+                        label_attribute_name: {"label": labels_dict[valid_annotation]},
+                        label_attribute_name + "-metadata": {"class-name": valid_annotation,
+                                                             "job-name": labeling_job_arn,
+                                                             "confidence": confidence_score,
+                                                             "type": "groundtruth/text-classification",
+                                                             "human-annotated": "yes",
+                                                             "creation-date": datetime.datetime.today().isoformat()},
                     }
                 }
             })
+        return result
+
+    def _create_label_lookup(self, labels_in_order):
+        result = {}
+        for i, l in enumerate(labels_in_order):
+            result[l] = i
         return result
