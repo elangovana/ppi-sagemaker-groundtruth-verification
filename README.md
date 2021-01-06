@@ -39,7 +39,7 @@ This has 3 components
   
    - Choose custom template in Sagemaker Ground Truth
   
-   - In the custom template section, copy paste the html from [source/template/template.html](source/template/template.html)
+   - In the custom template section, copy paste the html from [src/template/template.html](src/template/template.html)
    
    - In the Pre-labelling task lambda function, select `Sagemaker-PPIPreProcessing`
    
@@ -52,6 +52,6 @@ This has 3 components
 ## Run tests
 
 ```bash
-export PYTHONPATH=./source
+export PYTHONPATH=./src
 pytests
 ```
