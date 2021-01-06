@@ -6,7 +6,7 @@ from unittest.mock import Mock
 from postprocess import PostProcessPPIAnnotation
 
 
-class TestPostProcessNERAnnotation(TestCase):
+class TestPostProcessPPIAnnotation(TestCase):
 
     def test_post_process(self):
         # Arrange
