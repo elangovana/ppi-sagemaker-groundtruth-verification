@@ -2,8 +2,6 @@ import json
 import logging
 import re
 
-import common
-
 
 def lambda_handler(event, context):
     logger = logging.getLogger(__name__)
@@ -22,7 +20,10 @@ def lambda_handler(event, context):
 
 class PreProcessPPIAnnotation:
 
-
+    def __init__(self):
+        self.labels = ['Correct', 'Incorrect - NER', 'Incorrect - DNA Methylation',
+                       'Incorrect - No trigger word', 'Incorrect - Opposite type',
+                       'Incorrect - Other', 'Not - sure']
 
     def process(self, json_input):
         source_input_dict = json.loads(json_input["source"])
@@ -44,7 +45,7 @@ class PreProcessPPIAnnotation:
         source_input_dict["display_segments"] = [{"text": i, "highlight": any(map(i.__contains__, particpant_uniprots))}
                                                  for i in re.split("<mark>|</mark>", display_abstract)]
 
-        source_input_dict["labels"] = common.labels
+        source_input_dict["labels"] = self.labels
 
         comma_sep_labels_str = ", ".join(["'{}'".format(l) for l in source_input_dict["labels"]])
         source_input_dict["display_labels"] = "[{}]".format(comma_sep_labels_str)

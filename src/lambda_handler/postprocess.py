@@ -5,8 +5,6 @@ from urllib.parse import urlparse
 
 import boto3
 
-import common
-
 
 def lambda_handler(event, context):
     logger = logging.getLogger(__name__)
@@ -50,7 +48,6 @@ class PostProcessPPIAnnotation:
 
         result = []
         for r in json.loads(payload):
-            labels_dict = self._create_label_lookup(common.labels)
 
             annotations_hit = {}
             valid_annotation = None
@@ -76,14 +73,9 @@ class PostProcessPPIAnnotation:
                 "datasetObjectId": r["datasetObjectId"],
                 "consolidatedAnnotation": {
                     "content": {
-                        label_attribute_name: {"result": labels_dict[valid_annotation]}
+                        label_attribute_name: {"result": valid_annotation
+                                               }
                     }
                 }
             })
-        return result
-
-    def _create_label_lookup(self, labels_in_order):
-        result = {}
-        for i, l in enumerate(labels_in_order):
-            result[l] = i
         return result
