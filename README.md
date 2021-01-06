@@ -7,7 +7,7 @@ This has 3 components
 1. Lambda functions for pre and post processing rules.
 
 
-![Preview](docs/preview.png)
+![demo](docs/demo.jpg)
 
 
 
