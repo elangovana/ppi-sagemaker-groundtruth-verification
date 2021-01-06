@@ -45,7 +45,7 @@ This has 3 components
    
    - In the Post-labelling task lambda function, select `Sagemaker-PPIPostProcessing`
 
-![setup](docs/setup_custom_template.jpg)
+![setup](docs/setup_custom_template.png)
 
  
 
