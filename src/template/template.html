@@ -21,6 +21,8 @@ table, th, td {
         <classification-target>
             <h2><a href="https://pubmed.ncbi.nlm.nih.gov/{{task.input.pubmedId}}" target="_blank"> Abstract - Pubmed
                 {{task.input.pubmedId}}</a></h2>
+
+
             <div>
                 Is this PPI relationship <b>{{task.input.predicted}}</b> described?
                 <ul>
@@ -28,8 +30,9 @@ table, th, td {
                     <li>{{p}}</li>
                     {% endfor%}
                 </ul>
-
             </div>
+
+
             <div id="ppitext">
                 {% for seg in task.input.display_segments %}{% if seg.highlight %}<b>{{seg.text}}</b>{% else
                 %}{{seg.text}}{% endif %}{% endfor %}
