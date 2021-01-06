@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/elangovana/ppi-sagemaker-groundtruth-verification.svg?branch=main)](https://travis-ci.org/elangovana/ppi-sagemaker-groundtruth-verification)
+
 # SageMaker GroundTruth  - PPI extraction verification
 This is a sample template for SageMaker  ground truth solution for verifying PPI extraction. 
 This has 3 components
@@ -15,9 +17,9 @@ This has 3 components
 1. Create pre and post processing lambda functions
     - **Note** Using the naming convention SageMaker-* for your lambda functions automatically gives access to Sagemaker using the standard template. Otherwise you would have to use create an IAM policy and provide access to Sagemaker to execute the lambda function
    
-    - Create a lambda function `SageMaker-PPIPreProcessing` with runtime python 3.7 using the code [src/lambda_handler/preprocess.py](src/lambda_handler/preprocess.py) and [common.py](src/lambda_handler/common.py). 
+    - Create a lambda function `SageMaker-PPIPreProcessing` with runtime python 3.7 using the code [src/lambda_handler/preprocess.py](src/lambda_handler/preprocess.py) . 
    
-    - Create a lambda function `SageMaker-PPIPostProcessing` with runtime python 3.7 using the code [src/lambda_handler/postprocess.py](src/lambda_handler/postprocess.py) and [common.py](src/lambda_handler/common.py). **Make sure this has access to read the s3 bucket** containing the results from Sagemaker groundtruth job you are about to create. See example policy below
+    - Create a lambda function `SageMaker-PPIPostProcessing` with runtime python 3.7 using the code [src/lambda_handler/postprocess.py](src/lambda_handler/postprocess.py) with lambda basic execution role. **Make sure this has access to read the s3 bucket** containing the results from Sagemaker groundtruth job you are about to create. See example policy below
     
        ```json
         {
