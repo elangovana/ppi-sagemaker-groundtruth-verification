@@ -1,6 +1,5 @@
 import json
 import logging
-import math
 from urllib.parse import urlparse
 
 import boto3
@@ -49,33 +48,40 @@ class PostProcessPPIAnnotation:
         result = []
         for r in json.loads(payload):
 
-            annotations_hit = {}
-            valid_annotation = None
-
-            # Consolidate annotaions for the same record from various workers..
-            # Annotations for various workers for the same record.. Pick the majority ones
-            num_workers = len(r["annotations"])
-            # threshold atleast 10% of the workers should have identified this
-            threshold = math.ceil(num_workers * 10 / 100)
+            labels_vote_dict = {}
 
             for a in r["annotations"]:
                 classification_annotations = json.loads(a["annotationData"]["content"])
 
                 label = classification_annotations["category"]["label"]
 
-                if label not in annotations_hit: annotations_hit[label] = 0
+                if label not in labels_vote_dict: labels_vote_dict[label] = 0
 
-                annotations_hit[label] += 1
-                if annotations_hit[label] == threshold:
-                    valid_annotation = label
+                labels_vote_dict[label] += 1
+
+            majority_label = self._get_majority_label(labels_vote_dict)
 
             result.append({
                 "datasetObjectId": r["datasetObjectId"],
                 "consolidatedAnnotation": {
                     "content": {
-                        label_attribute_name: {"result": valid_annotation
+                        label_attribute_name: {"result": majority_label
                                                }
                     }
                 }
             })
         return result
+
+    def _get_majority_label(self, labels_vote_dict):
+        """
+        Return the label with max votes
+        :param labels_vote_dict:
+        :return:
+        """
+        labels, votes = [], []
+        for l, v in labels_vote_dict.items():
+            labels.append(l)
+            votes.append(v)
+        index_max_votes = votes.index(max(votes))
+        majority_label = labels[index_max_votes]
+        return majority_label
