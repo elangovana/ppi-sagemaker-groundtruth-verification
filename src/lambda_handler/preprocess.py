@@ -23,7 +23,7 @@ class PreProcessPPIAnnotation:
     def __init__(self):
         self.labels = ['Correct', 'Incorrect - NER', 'Incorrect - DNA Methylation',
                        'Incorrect - No trigger word', 'Incorrect - Opposite type',
-                       'Incorrect - Not related to PPI',"Incorrect - relationship not described", 'Not - sure']
+                       'Incorrect - Not related to PPI', "Incorrect - relationship not described", 'Not - sure']
 
     def process(self, json_input):
         source_input_dict = json.loads(json_input["source"])
@@ -36,33 +36,47 @@ class PreProcessPPIAnnotation:
 
         norm_abstract = source_input_dict["normalised_abstract"]
         particpant_uniprots = [source_input_dict["participant1Id"], source_input_dict["participant2Id"]]
-        display_abstract = norm_abstract
 
         display_participants = []
-        gene_to_uniprot_map = { }
+        gene_to_uniprot_map = {}
         normalised_abstract_annotations = source_input_dict["normalised_abstract_annotations"]
         normalised_abstract_uniprots = {a["text"] for a in normalised_abstract_annotations}
         for n, u in source_input_dict["gene_to_uniprot_map"].items():
             # If uniprot is a list, just use the first one
             if not isinstance(u, str):
-                u = list(filter(lambda x : x in normalised_abstract_uniprots, u))[0]
+                u = list(filter(lambda x: x in normalised_abstract_uniprots, u))[0]
 
-            gene_to_uniprot_map[n]=u
+            gene_to_uniprot_map[n] = u
 
+        display_segments = []
+        last_pos = 0
         for norm_anno in normalised_abstract_annotations:
             uniprot_id = norm_anno["text"]
+            pos = norm_anno["charOffset"]
+            len = norm_anno["len"]
+            highlight = uniprot_id in particpant_uniprots
+
             friendly_name = self.get_display_friendly_gene_name(uniprot_id, source_input_dict["annotations"],
                                                                 gene_to_uniprot_map,
                                                                 particpant_uniprots)
-            display_abstract = display_abstract.replace(uniprot_id, friendly_name)
-            if uniprot_id in particpant_uniprots:
-                display_participants.append("{}".format(re.sub("<mark>|</mark>", "", friendly_name)))
 
-        source_input_dict["display_abstract"] = display_abstract
-        source_input_dict["display_participants"] = display_participants
+            display_segments.append({"text": norm_abstract[last_pos: pos], "highlight": False})
+            display_segments.append({"text": friendly_name, "highlight": highlight})
 
-        source_input_dict["display_segments"] = [{"text": i, "highlight": any(map(i.__contains__, particpant_uniprots))}
-                                                 for i in re.split("<mark>|</mark>", display_abstract)]
+            last_pos = pos + len
+
+        display_segments.append({"text": norm_abstract[last_pos:], "highlight": False})
+
+        source_input_dict["display_participants"] = [
+            self.get_display_friendly_gene_name(p, source_input_dict["annotations"],
+                                                gene_to_uniprot_map,
+                                                particpant_uniprots) for p in particpant_uniprots
+        ]
+
+        source_input_dict["display_segments"] = display_segments
+
+        # [{"text": i, "highlight": any(map(i.__contains__, particpant_uniprots))}
+        #                                          for i in re.split("<mark>|</mark>", display_abstract)]
 
         source_input_dict["labels"] = self.labels
 
@@ -78,10 +92,5 @@ class PreProcessPPIAnnotation:
         gene_name = list(sorted(filter(lambda a: a["type"] == 'Gene' and a["normalised_id"] == ncbi,
                                        annotations), key=lambda a: len(a["name"])))[0]["name"]
 
-        if uniprot_id in particpant_uniprots:
-            display_friendly_nomalised_name = "<mark>{} ({})</mark>".format(gene_name,
-                                                                            uniprot_id)
-
-        else:
-            display_friendly_nomalised_name = "{} ({})".format(gene_name, uniprot_id)
+        display_friendly_nomalised_name = "{} ({})".format(gene_name, uniprot_id)
         return display_friendly_nomalised_name

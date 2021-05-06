@@ -270,7 +270,9 @@ class TestPreProcessPPIAnnotation(TestCase):
                                      {"text": "p300 (Q09472)", "highlight": True},
                                      {"text": " binds and acetylates ", "highlight": False},
                                      {"text": "BCL6 (P41182)", "highlight": True},
-                                     {"text": " SIR2 (Q8IXJ6)-dependent pathways", "highlight": False}
+                                     {'highlight': False, 'text': ' '},
+                                     {'highlight': False, 'text': 'SIR2 (Q8IXJ6)'},
+                                     {'highlight': False, 'text': '-dependent pathways'}
                                      ]
         input_data = {"source": json.dumps(sample_json)}
 
