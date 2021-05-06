@@ -23,20 +23,39 @@ class PreProcessPPIAnnotation:
     def __init__(self):
         self.labels = ['Correct', 'Incorrect - NER', 'Incorrect - DNA Methylation',
                        'Incorrect - No trigger word', 'Incorrect - Opposite type',
-                       'Incorrect - Other', 'Not - sure']
+                       'Incorrect - Not related to PPI',"Incorrect - relationship not described", 'Not - sure']
 
     def process(self, json_input):
         source_input_dict = json.loads(json_input["source"])
+
+        # if training data then has no prediction label
+        label = source_input_dict["prediction"] if "prediction" in source_input_dict else source_input_dict[
+            "class"]
+
+        source_input_dict["ppi_relationship_type"] = label
 
         norm_abstract = source_input_dict["normalised_abstract"]
         particpant_uniprots = [source_input_dict["participant1Id"], source_input_dict["participant2Id"]]
         display_abstract = norm_abstract
 
         display_participants = []
-        for n, u in source_input_dict["gene_id_map"].items():
-            friendly_name = self.get_display_friendly_gene_name(u, source_input_dict, particpant_uniprots)
-            display_abstract = display_abstract.replace(u, friendly_name)
-            if u in particpant_uniprots:
+        gene_to_uniprot_map = { }
+        normalised_abstract_annotations = source_input_dict["normalised_abstract_annotations"]
+        normalised_abstract_uniprots = {a["text"] for a in normalised_abstract_annotations}
+        for n, u in source_input_dict["gene_to_uniprot_map"].items():
+            # If uniprot is a list, just use the first one
+            if not isinstance(u, str):
+                u = list(filter(lambda x : x in normalised_abstract_uniprots, u))[0]
+
+            gene_to_uniprot_map[n]=u
+
+        for norm_anno in normalised_abstract_annotations:
+            uniprot_id = norm_anno["text"]
+            friendly_name = self.get_display_friendly_gene_name(uniprot_id, source_input_dict["annotations"],
+                                                                gene_to_uniprot_map,
+                                                                particpant_uniprots)
+            display_abstract = display_abstract.replace(uniprot_id, friendly_name)
+            if uniprot_id in particpant_uniprots:
                 display_participants.append("{}".format(re.sub("<mark>|</mark>", "", friendly_name)))
 
         source_input_dict["display_abstract"] = display_abstract
@@ -52,11 +71,12 @@ class PreProcessPPIAnnotation:
 
         return source_input_dict
 
-    def get_display_friendly_gene_name(self, uniprot_id, source_input_dict, particpant_uniprots):
-        ncbi, _ = list(filter(lambda kv: kv[1] == uniprot_id, source_input_dict["gene_id_map"].items()), )[0]
+    def get_display_friendly_gene_name(self, uniprot_id, annotations, gene_uniprot_map, particpant_uniprots):
+        print(uniprot_id)
+        ncbi, _ = list(filter(lambda kv: kv[1] == uniprot_id, gene_uniprot_map.items()), )[0]
         # Make sure we select the shortest name.
         gene_name = list(sorted(filter(lambda a: a["type"] == 'Gene' and a["normalised_id"] == ncbi,
-                                       source_input_dict["annotations"]), key=lambda a: len(a["name"])))[0]["name"]
+                                       annotations), key=lambda a: len(a["name"])))[0]["name"]
 
         if uniprot_id in particpant_uniprots:
             display_friendly_nomalised_name = "<mark>{} ({})</mark>".format(gene_name,
