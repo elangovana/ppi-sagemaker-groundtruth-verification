@@ -37,7 +37,6 @@ class PreProcessPPIAnnotation:
         norm_abstract = source_input_dict["normalised_abstract"]
         particpant_uniprots = [source_input_dict["participant1Id"], source_input_dict["participant2Id"]]
 
-        display_participants = []
         gene_to_uniprot_map = {}
         normalised_abstract_annotations = source_input_dict["normalised_abstract_annotations"]
         normalised_abstract_uniprots = {a["text"] for a in normalised_abstract_annotations}
@@ -57,8 +56,7 @@ class PreProcessPPIAnnotation:
             highlight = uniprot_id in particpant_uniprots
 
             friendly_name = self.get_display_friendly_gene_name(uniprot_id, source_input_dict["annotations"],
-                                                                gene_to_uniprot_map,
-                                                                particpant_uniprots)
+                                                                gene_to_uniprot_map)
 
             display_segments.append({"text": norm_abstract[last_pos: pos], "highlight": False})
             display_segments.append({"text": friendly_name, "highlight": highlight})
@@ -69,8 +67,7 @@ class PreProcessPPIAnnotation:
 
         source_input_dict["display_participants"] = [
             self.get_display_friendly_gene_name(p, source_input_dict["annotations"],
-                                                gene_to_uniprot_map,
-                                                particpant_uniprots) for p in particpant_uniprots
+                                                gene_to_uniprot_map) for p in particpant_uniprots
         ]
 
         source_input_dict["display_segments"] = display_segments
@@ -85,9 +82,15 @@ class PreProcessPPIAnnotation:
 
         return source_input_dict
 
-    def get_display_friendly_gene_name(self, uniprot_id, annotations, gene_uniprot_map, particpant_uniprots):
-        print(uniprot_id)
-        ncbi, _ = list(filter(lambda kv: kv[1] == uniprot_id, gene_uniprot_map.items()), )[0]
+    def get_display_friendly_gene_name(self, uniprot_id, annotations, gene_uniprot_map):
+        display_friendly_nomalised_name = uniprot_id
+
+        ncbi = list(filter(lambda kv: kv[1] == uniprot_id, gene_uniprot_map.items()) )
+
+        if len(ncbi) == 0:
+            return display_friendly_nomalised_name
+
+        ncbi,_ = ncbi[0]
         # Make sure we select the shortest name.
         gene_name = list(sorted(filter(lambda a: a["type"] == 'Gene' and a["normalised_id"] == ncbi,
                                        annotations), key=lambda a: len(a["name"])))[0]["name"]
