@@ -283,3 +283,53 @@ class TestPreProcessPPIAnnotation(TestCase):
 
         # Assert
         self.assertEqual(expected_display_segments, actual["display_segments"])
+
+    def test_process_missing_uniprot(self):
+        # Arrange
+        sample_json = {
+            "annotations": [{"normalised_id": "2033", "end": "232", "start": "228", "name": "p300", "type": "Gene"},
+                            {"normalised_id": "604", "end": "258", "start": "254", "name": "BCL6", "type": "Gene"},
+                            {"normalised_id": "22933", "end": "717", "start": "713", "name": "SIR2", "type": "Gene"}
+
+                            ],
+            "gene_to_uniprot_map": {"2033": "Q09472", "604": "P41182", "22933": []},
+            "normalised_abstract": "Q09472 binds and acetylates P41182 22933-dependent pathways",
+            "normalised_abstract_annotations": [
+                {
+                    "charOffset": 0,
+                    "len": 6,
+                    "text": "Q09472"
+                },
+                {
+                    "charOffset": 28,
+                    "len": 6,
+                    "text": "P41182"
+                },
+                {
+                    "charOffset": 35,
+                    "len": 5,
+                    "text": "22933"
+                },
+
+            ],
+            "participant1Id": "P41182",
+            "participant2Id": "Q09472",
+            "class": "phosphorylation"
+        }
+        expected_display_segments = [{"text": "", "highlight": False},
+                                     {"text": "p300 (Q09472)", "highlight": True},
+                                     {"text": " binds and acetylates ", "highlight": False},
+                                     {"text": "BCL6 (P41182)", "highlight": True},
+                                     {'highlight': False, 'text': ' '},
+                                     {'highlight': False, 'text': '22933'},
+                                     {'highlight': False, 'text': '-dependent pathways'}
+                                     ]
+        input_data = {"source": json.dumps(sample_json)}
+
+        sut = PreProcessPPIAnnotation()
+
+        # Act
+        actual = sut.process(input_data)
+
+        # Assert
+        self.assertEqual(expected_display_segments, actual["display_segments"])
